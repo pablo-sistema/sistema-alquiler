@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="mb-4">💰 Registrar Pago</h2>
+
+<div class="card mb-4">
+  <div class="card-body">
+
+    <form action="/crear_pago" method="post">
+
+      <div class="mb-3">
+        <label class="form-label">Cargo pendiente</label>
+        <select name="cargo_id" class="form-control" required>
+          {% for c in cargos_pendientes %}
+          <option value="{{ c.id }}">
+            #{{ c.id }} | {{ c.contrato.inquilino.nombre }} | {{ c.contrato.propiedad.numero }} |
+            {{ c.concepto }} | {{ c.periodo }} | S/ {{ c.monto }} | Vence: {{ c.vencimiento }}
+          </option>
+          {% endfor %}
+        </select>
+        {% if cargos_pendientes|length == 0 %}
+          <small class="text-muted">No hay cargos pendientes.</small>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Monto pagado</label>
+        <input type="number" step="0.01" name="monto" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Fecha de pago</label>
+        <input type="date" name="fecha_pago" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Método</label>
+        <select name="metodo" class="form-control" required>
+          <option>Yape</option>
+          <option>Plin</option>
+          <option>Efectivo</option>
+        </select>
+      </div>
+
+      <button class="btn btn-success">Registrar Pago</button>
+
+    </form>
+
+  </div>
+</div>
+
+        </form>
+
+    </div>
+</div>
+
+<h2>📋 Historial de Pagos</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Inquilino</th>
+            <th>Propiedad</th>
+            <th>Monto</th>
+            <th>Fecha</th>
+            <th>Método</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in pagos %}
+        <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.contrato.inquilino.nombre }}</td>
+            <td>{{ p.contrato.propiedad.numero }}</td>
+            <td>S/ {{ p.monto }}</td>
+            <td>{{ p.fecha_pago }}</td>
+            <td>{{ p.metodo }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

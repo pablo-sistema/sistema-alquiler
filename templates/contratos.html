@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="mb-4">📄 Crear Contrato</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+
+        <form action="/crear_contrato" method="post">
+
+            <div class="mb-3">
+                <label class="form-label">Propiedad</label>
+                <select name="propiedad_id" class="form-control" required>
+                    {% for p in propiedades %}
+                        {% if p.estado == "libre" %}
+                        <option value="{{ p.id }}">
+                            {{ p.tipo }} - {{ p.numero }}
+                        </option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Inquilino</label>
+                <select name="inquilino_id" class="form-control" required>
+                    {% for i in inquilinos %}
+                    <option value="{{ i.id }}">
+                        {{ i.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Fecha Inicio</label>
+                <input type="date" name="fecha_inicio" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Fecha Fin</label>
+                <input type="date" name="fecha_fin" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Monto Mensual</label>
+                <input type="number" name="monto_mensual" class="form-control" required>
+
+            </div>
+
+            <button type="submit" class="btn btn-success">
+                Crear Contrato
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+<h2 class="mb-3">📋 Lista de Contratos</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Propiedad</th>
+            <th>Inquilino</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in contratos %}
+        <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.propiedad.tipo }} - {{ c.propiedad.numero }}</td>
+            <td>{{ c.inquilino.nombre }}</td>
+            <td>{{ c.fecha_inicio }}</td>
+            <td>{{ c.fecha_fin }}</td>
+            <td>
+                <span class="badge bg-success">{{ c.estado }}</span>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

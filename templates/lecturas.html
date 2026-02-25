@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-3">⚡💧 Lecturas de Servicios</h2>
+<p class="text-muted">Registra lectura de LUZ/AGUA y el sistema generará el cargo automáticamente con vencimiento día 25.</p>
+
+<div class="row g-4">
+
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5>Registrar lectura (LUZ / AGUA)</h5>
+
+        <form action="/registrar_lectura" method="post">
+
+          <div class="mb-2">
+            <label class="form-label">Contrato</label>
+            <select name="contrato_id" class="form-control" required>
+              {% for c in contratos %}
+              <option value="{{ c.id }}">
+                #{{ c.id }} | {{ c.inquilino.nombre }} | {{ c.propiedad.numero }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Servicio</label>
+            <select name="servicio" class="form-control" required>
+              <option>LUZ</option>
+              <option>AGUA</option>
+            </select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Periodo</label>
+            <input name="periodo" class="form-control" value="{{ periodo }}" required>
+            <small class="text-muted">Formato: YYYY-MM</small>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Lectura anterior</label>
+            <input type="number" step="0.01" name="lectura_anterior" class="form-control" required>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Lectura actual</label>
+            <input type="number" step="0.01" name="lectura_actual" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Tarifa por unidad (S/)</label>
+            <input type="number" step="0.01" name="tarifa" class="form-control" required>
+          </div>
+
+          <button class="btn btn-primary w-100">Guardar lectura y generar cargo</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5>Generar cargo fijo de INTERNET</h5>
+
+        <form action="/generar_internet" method="post">
+
+          <div class="mb-2">
+            <label class="form-label">Contrato</label>
+            <select name="contrato_id" class="form-control" required>
+              {% for c in contratos %}
+              <option value="{{ c.id }}">
+                #{{ c.id }} | {{ c.inquilino.nombre }} | {{ c.propiedad.numero }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Periodo</label>
+            <input name="periodo" class="form-control" value="{{ periodo }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Monto (S/)</label>
+            <input type="number" step="0.01" name="monto" class="form-control" required>
+          </div>
+
+          <button class="btn btn-success w-100">Generar INTERNET</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<hr class="my-4">
+
+<h4>📋 Historial de lecturas</h4>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Fecha</th>
+      <th>Inquilino</th>
+      <th>Propiedad</th>
+      <th>Servicio</th>
+      <th>Periodo</th>
+      <th>Anterior</th>
+      <th>Actual</th>
+      <th>Consumo</th>
+      <th>Tarifa</th>
+      <th>Monto</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for l in lecturas %}
+    <tr>
+      <td>{{ l.fecha_registro }}</td>
+      <td>{{ l.contrato.inquilino.nombre }}</td>
+      <td>{{ l.contrato.propiedad.numero }}</td>
+      <td>{{ l.servicio }}</td>
+      <td>{{ l.periodo }}</td>
+      <td>{{ l.lectura_anterior }}</td>
+      <td>{{ l.lectura_actual }}</td>
+      <td><b>{{ l.consumo }}</b></td>
+      <td>{{ l.tarifa }}</td>
+      <td><b>S/ {{ l.monto }}</b></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-3">📊 Dashboard</h2>
+<p class="text-muted">Resumen financiero y accesos rápidos a módulos.</p>
+
+<!-- KPIs -->
+<div class="row g-3 mb-4">
+
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted">Propiedades</div>
+        <div class="fs-3 fw-bold">{{ total_propiedades }}</div>
+        <div class="small text-muted">Libres: {{ libres }} | Ocupadas: {{ ocupadas }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted">Inquilinos</div>
+        <div class="fs-3 fw-bold">{{ total_inquilinos }}</div>
+        <div class="small text-muted">Contratos activos: {{ contratos_activos }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted">Deuda pendiente</div>
+        <div class="fs-3 fw-bold">S/ {{ deuda_total }}</div>
+        <div class="small text-muted">Cargos pendientes: {{ cargos_pendientes }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted">Morosos</div>
+        <div class="fs-3 fw-bold">{{ morosos }}</div>
+        <div class="small text-muted">Cargos vencidos sin pagar</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Ingresos del mes -->
+<div class="card shadow-sm mb-4">
+  <div class="card-body d-flex justify-content-between align-items-center">
+    <div>
+      <div class="text-muted">Ingresos del mes</div>
+      <div class="fs-2 fw-bold">S/ {{ ingresos_mes }}</div>
+    </div>
+    <a href="/pagos" class="btn btn-success">Ver Pagos</a>
+  </div>
+</div>
+
+<!-- Módulos (cuadros gigantes) -->
+<div class="row g-4">
+
+  <div class="col-md-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h4>🏠 Propiedades</h4>
+        <p class="text-muted">Registrar y administrar cuartos, locales, departamentos.</p>
+        <a href="/propiedades" class="btn btn-primary w-100">Ir a Propiedades</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h4>👤 Inquilinos</h4>
+        <p class="text-muted">Registrar inquilinos, teléfonos y estado.</p>
+        <a href="/inquilinos" class="btn btn-primary w-100">Ir a Inquilinos</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h4>📄 Contratos</h4>
+        <p class="text-muted">Crear contratos y asignar propiedad + inquilino.</p>
+        <a href="/contratos" class="btn btn-primary w-100">Ir a Contratos</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h4>🧾 Cargos</h4>
+        <p class="text-muted">Recibos generados: prorrata, alquiler, servicios.</p>
+        <a href="/cargos" class="btn btn-primary w-100">Ir a Cargos</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h4>💰 Pagos</h4>
+        <p class="text-muted">Registrar pagos (Yape/Plin/Efectivo) y ver historial.</p>
+        <a href="/pagos" class="btn btn-primary w-100">Ir a Pagos</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+<form action="/generar_cargos_mensuales" method="post" class="mb-3">
+  <button class="btn btn-outline-primary">⚙️ Generar cargos mensuales</button>
+</form>
+
+{% endblock %}

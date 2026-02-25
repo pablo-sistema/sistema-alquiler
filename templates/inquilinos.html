@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Lista de Inquilinos</h2>
+
+<a href="/nuevo_inquilino" class="btn btn-primary mb-3">Agregar Inquilino</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>DNI</th>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>WhatsApp</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in inquilinos %}
+        <tr>
+            <td>{{ i.id }}</td>
+            <td>{{ i.dni }}</td>
+            <td>{{ i.nombre }}</td>
+            <td>{{ i.telefono }}</td>
+            <td>{{ i.whatsapp }}</td>
+            <td>
+                {% if i.estado == "Activo" %}
+                    <span class="badge bg-success">Activo</span>
+                {% else %}
+                    <span class="badge bg-danger">Moroso</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

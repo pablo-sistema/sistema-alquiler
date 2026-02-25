@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-3">🧾 Cargos (Recibos)</h2>
+<p class="text-muted">
+  Aquí verás los cargos generados (alquiler prorrata, alquiler mensual, servicios, etc.) con vencimiento normalmente el día 25.
+</p>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <table class="table table-striped table-hover align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Inquilino</th>
+          <th>Propiedad</th>
+          <th>Concepto</th>
+          <th>Periodo</th>
+          <th>Monto</th>
+          <th>Vencimiento</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in cargos %}
+        <tr>
+          <td>{{ c.id }}</td>
+          <td>{{ c.contrato.inquilino.nombre }}</td>
+          <td>{{ c.contrato.propiedad.tipo }} - {{ c.contrato.propiedad.numero }}</td>
+          <td>{{ c.concepto }}</td>
+          <td>{{ c.periodo }}</td>
+          <td><strong>S/ {{ c.monto }}</strong></td>
+          <td>{{ c.vencimiento }}</td>
+          <td>
+            {% if c.estado == "Pendiente" %}
+              <span class="badge bg-warning text-dark">Pendiente</span>
+            {% elif c.estado == "Pagado" %}
+              <span class="badge bg-success">Pagado</span>
+            {% else %}
+              <span class="badge bg-info text-dark">Parcial</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+
+        {% if cargos|length == 0 %}
+        <tr>
+          <td colspan="8" class="text-center text-muted">
+            No hay cargos todavía. Crea un contrato para generar el cargo prorrateado automáticamente.
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

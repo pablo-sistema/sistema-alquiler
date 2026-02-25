@@ -1,0 +1,17 @@
+<h2>Nuevo Inquilino</h2>
+
+<form action="/guardar_inquilino" method="post">
+    DNI: <input type="text" name="dni"><br><br>
+    Nombre: <input type="text" name="nombre"><br><br>
+    Teléfono: <input type="text" name="telefono"><br><br>
+    WhatsApp: <input type="text" name="whatsapp"><br><br>
+
+    Estado:
+    <select name="estado">
+        <option value="Activo">Activo</option>
+        <option value="Moroso">Moroso</option>
+    </select>
+
+    <br><br>
+    <button type="submit">Guardar</button>
+</form>
