@@ -1,9 +1,11 @@
 import io
 from datetime import date, timedelta
+from urllib.parse import quote
 
 from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
@@ -18,11 +20,11 @@ from database import engine, Base, SessionLocal
 from models import Propiedad, Inquilino, Contrato, Cargo, Pago, Lectura
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 Base.metadata.create_all(bind=engine)
 
 DIA_CORTE = 25
-
 
 # ----------------------------
 # Helpers fechas
@@ -1389,3 +1391,5 @@ def whatsapp_recibo(pago_id: int, request: Request):
 
     finally:
         db.close()
+
+
