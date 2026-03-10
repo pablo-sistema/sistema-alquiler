@@ -1,40 +1,209 @@
 {% extends "base.html" %}
+{% block title %}Inquilinos | CREDIMAS{% endblock %}
 
 {% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Inquilinos</h1>
+    <p class="page-subtitle">
+      Gestión de clientes, cobranza y estado de cuenta
+    </p>
+  </div>
+</div>
 
-<h2>Lista de Inquilinos</h2>
+<div class="row g-3">
 
-<a href="/nuevo_inquilino" class="btn btn-primary mb-3">Agregar Inquilino</a>
+  <!-- FORMULARIO NUEVO INQUILINO -->
+  <div class="col-lg-4">
+    <div class="card-pro">
+      <div class="card-header">
+        <i class="bi bi-person-plus me-2"></i>Nuevo Inquilino
+      </div>
+      <div class="card-body">
+        <form action="/inquilinos/crear" method="post" class="row g-3">
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>DNI</th>
-            <th>Nombre</th>
-            <th>Teléfono</th>
-            <th>WhatsApp</th>
-            <th>Estado</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for i in inquilinos %}
-        <tr>
-            <td>{{ i.id }}</td>
-            <td>{{ i.dni }}</td>
-            <td>{{ i.nombre }}</td>
-            <td>{{ i.telefono }}</td>
-            <td>{{ i.whatsapp }}</td>
-            <td>
-                {% if i.estado == "Activo" %}
-                    <span class="badge bg-success">Activo</span>
-                {% else %}
-                    <span class="badge bg-danger">Moroso</span>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+          <div class="col-12">
+            <label class="form-label">DNI</label>
+            <input class="form-control" name="dni" required placeholder="Ej: 12345678">
+          </div>
 
+          <div class="col-12">
+            <label class="form-label">Nombre completo</label>
+            <input class="form-control" name="nombre" required placeholder="Ej: Juan Pérez">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Teléfono</label>
+            <input class="form-control" name="telefono" placeholder="Ej: 961234567">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">WhatsApp</label>
+            <input class="form-control" name="whatsapp" placeholder="Ej: 961234567">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Estado</label>
+            <select class="form-select" name="estado">
+              <option value="Activo" selected>Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </div>
+
+          <div class="col-12 d-flex justify-content-end">
+            <button class="btn btn-credimas" type="submit">
+              <i class="bi bi-check2-circle me-1"></i> Guardar
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <div class="card-pro mt-3">
+      <div class="card-header">
+        <i class="bi bi-search me-2"></i>Buscador
+      </div>
+      <div class="card-body">
+        <label class="form-label">Buscar por nombre, DNI, teléfono o WhatsApp</label>
+        <input id="buscarInquilino" class="form-control" placeholder="Ej: juan / 12345678 / 961234567">
+        <div class="form-text">
+          Filtra el listado en tiempo real.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLA INQUILINOS -->
+  <div class="col-lg-8">
+    <div class="card-pro">
+      <div class="card-header">
+        <i class="bi bi-people me-2"></i>Listado de Inquilinos
+      </div>
+      <div class="card-body">
+        <div class="table-pro">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Contacto</th>
+                <th>Estado</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody id="tablaInquilinos">
+              {% for i in inquilinos %}
+              <tr class="inq-row"
+                  data-search="
+                    {{ (i.nombre or '')|lower }}
+                    {{ (i.dni or '')|lower }}
+                    {{ (i.telefono or '')|lower }}
+                    {{ (i.whatsapp or '')|lower }}
+                  ">
+
+                <td class="fw-bold">#{{ i.id }}</td>
+
+                <td>
+                  <div class="fw-bold">{{ i.nombre }}</div>
+                  <div class="text-muted small">DNI: {{ i.dni }}</div>
+                </td>
+
+                <td>
+                  <div><i class="bi bi-telephone me-1"></i> {{ i.telefono or '-' }}</div>
+                  <div><i class="bi bi-whatsapp me-1"></i> {{ i.whatsapp or '-' }}</div>
+                </td>
+
+                <td>
+                  {% if i.estado == "Activo" %}
+                    <span class="badge-soft success">
+                      <i class="bi bi-check-circle"></i> Activo
+                    </span>
+                  {% else %}
+                    <span class="badge-soft danger">
+                      <i class="bi bi-x-circle"></i> Inactivo
+                    </span>
+                  {% endif %}
+                </td>
+
+                <td class="text-end">
+                  <a class="btn btn-credimas btn-sm" href="/pagos?q={{ i.dni }}">
+                    <i class="bi bi-cash-coin me-1"></i> Cobrar
+                  </a>
+
+                  <a class="btn btn-soft btn-sm" href="/inquilinos/{{ i.id }}/estado_cuenta.pdf" target="_blank">
+                    <i class="bi bi-filetype-pdf me-1"></i> Estado
+                  </a>
+
+                  <a class="btn btn-soft btn-sm" href="/whatsapp/recordatorio/{{ i.id }}" target="_blank">
+                    <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                  </a>
+
+                  <a class="btn btn-soft btn-sm" href="/inquilinos/{{ i.id }}/editar">
+                    <i class="bi bi-pencil-square me-1"></i> Editar
+                  </a>
+
+                  <form action="/inquilinos/{{ i.id }}/eliminar" method="post" class="d-inline"
+                        onsubmit="return confirm('¿Eliminar inquilino #{{ i.id }}?');">
+                    <button class="btn btn-danger-soft btn-sm" type="submit">
+                      <i class="bi bi-trash3 me-1"></i> Eliminar
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+
+              {% if inquilinos|length == 0 %}
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">
+                  No hay inquilinos registrados.
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-2 text-muted small" id="contadorInquilinos"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+(function(){
+  const buscador = document.getElementById("buscarInquilino");
+  const filas = Array.from(document.querySelectorAll(".inq-row"));
+  const contador = document.getElementById("contadorInquilinos");
+
+  function actualizarContador(visibles){
+    if(contador){
+      contador.textContent = `Mostrando ${visibles} de ${filas.length} inquilinos.`;
+    }
+  }
+
+  function filtrar(){
+    const texto = (buscador.value || "").toLowerCase().trim();
+    let visibles = 0;
+
+    filas.forEach(fila => {
+      const data = (fila.dataset.search || "").toLowerCase();
+      const mostrar = !texto || data.includes(texto);
+      fila.style.display = mostrar ? "" : "none";
+      if(mostrar) visibles++;
+    });
+
+    actualizarContador(visibles);
+  }
+
+  if(buscador){
+    buscador.addEventListener("input", filtrar);
+  }
+
+  actualizarContador(filas.length);
+})();
+</script>
 {% endblock %}

@@ -1,89 +1,319 @@
 {% extends "base.html" %}
+{% block title %}Contratos | CREDIMAS{% endblock %}
 
 {% block content %}
 
-<h2 class="mb-4">📄 Crear Contrato</h2>
-
-<div class="card mb-4">
-    <div class="card-body">
-
-        <form action="/crear_contrato" method="post">
-
-            <div class="mb-3">
-                <label class="form-label">Propiedad</label>
-                <select name="propiedad_id" class="form-control" required>
-                    {% for p in propiedades %}
-                        {% if p.estado == "libre" %}
-                        <option value="{{ p.id }}">
-                            {{ p.tipo }} - {{ p.numero }}
-                        </option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Inquilino</label>
-                <select name="inquilino_id" class="form-control" required>
-                    {% for i in inquilinos %}
-                    <option value="{{ i.id }}">
-                        {{ i.nombre }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Fecha Inicio</label>
-                <input type="date" name="fecha_inicio" class="form-control" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Fecha Fin</label>
-                <input type="date" name="fecha_fin" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Monto Mensual</label>
-                <input type="number" name="monto_mensual" class="form-control" required>
-
-            </div>
-
-            <button type="submit" class="btn btn-success">
-                Crear Contrato
-            </button>
-
-        </form>
-
-    </div>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Contratos</h1>
+    <p class="page-subtitle">
+      Gestión de contratos de alquiler mensual y alquiler diario
+    </p>
+  </div>
 </div>
 
-<h2 class="mb-3">📋 Lista de Contratos</h2>
+<div class="row g-3">
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Propiedad</th>
-            <th>Inquilino</th>
-            <th>Inicio</th>
-            <th>Fin</th>
-            <th>Estado</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for c in contratos %}
-        <tr>
-            <td>{{ c.id }}</td>
-            <td>{{ c.propiedad.tipo }} - {{ c.propiedad.numero }}</td>
-            <td>{{ c.inquilino.nombre }}</td>
-            <td>{{ c.fecha_inicio }}</td>
-            <td>{{ c.fecha_fin }}</td>
-            <td>
-                <span class="badge bg-success">{{ c.estado }}</span>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
+<!-- FORMULARIO NUEVO CONTRATO -->
+<div class="col-lg-4">
+
+<div class="card-pro">
+<div class="card-header">
+<i class="bi bi-file-earmark-plus me-2"></i>Nuevo Contrato
+</div>
+
+<div class="card-body">
+
+<form action="/contratos/crear" method="post" class="row g-3">
+
+<div class="col-12">
+<label class="form-label">Inquilino</label>
+<select class="form-select" name="inquilino_id" required>
+{% for i in inquilinos %}
+<option value="{{i.id}}">
+{{i.nombre}} ({{i.dni}})
+</option>
+{% endfor %}
+</select>
+</div>
+
+<div class="col-12">
+<label class="form-label">Propiedad</label>
+<select class="form-select" name="propiedad_id" required>
+{% for p in propiedades %}
+<option value="{{p.id}}">
+{{p.tipo}} {{p.numero}}
+</option>
+{% endfor %}
+</select>
+</div>
+
+<div class="col-md-6">
+<label class="form-label">Fecha inicio</label>
+<input class="form-control" type="date" name="fecha_inicio" required>
+</div>
+
+<div class="col-md-6">
+<label class="form-label">Fecha fin</label>
+<input class="form-control" type="date" name="fecha_fin" required>
+</div>
+
+<div class="col-md-6">
+<label class="form-label">Tipo alquiler</label>
+<select class="form-select" name="tipo_alquiler" required>
+
+<option value="mensual">
+Mensual (paga día 25)
+</option>
+
+<option value="diario">
+Diario (monto/30 × días)
+</option>
+
+</select>
+</div>
+
+<div class="col-md-6">
+<label class="form-label">Monto mensual</label>
+<input class="form-control" type="number" step="0.01" name="monto_mensual" required>
+</div>
+
+<div class="col-12 d-flex justify-content-end">
+<button class="btn btn-credimas" type="submit">
+<i class="bi bi-check2-circle me-1"></i>Crear Contrato
+</button>
+</div>
+
+</form>
+
+</div>
+</div>
+
+
+<div class="card-pro mt-3">
+<div class="card-header">
+<i class="bi bi-info-circle me-2"></i>Cómo funciona
+</div>
+
+<div class="card-body small text-muted">
+
+<b>Contrato Mensual</b>
+
+<ul>
+<li>El sistema genera alquiler el día 25</li>
+<li>El cargo es fijo mensual</li>
+<li>Puede sumarse luz o agua</li>
+</ul>
+
+<b>Contrato Diario</b>
+
+<ul>
+<li>Se calcula por días</li>
+<li>Fórmula:</li>
+
+<code>
+monto mensual / 30 × días
+</code>
+
+</ul>
+
+</div>
+</div>
+
+</div>
+
+
+<!-- LISTADO CONTRATOS -->
+<div class="col-lg-8">
+
+<div class="card-pro">
+
+<div class="card-header">
+<i class="bi bi-journal-text me-2"></i>Listado de Contratos
+</div>
+
+<div class="card-body">
+
+<div class="mb-3">
+
+<input
+id="buscarContrato"
+class="form-control"
+placeholder="Buscar por inquilino, DNI o propiedad">
+
+</div>
+
+
+<div class="table-pro">
+
+<table class="table table-hover align-middle">
+
+<thead>
+
+<tr>
+<th>ID</th>
+<th>Inquilino</th>
+<th>Propiedad</th>
+<th>Tipo</th>
+<th>Monto</th>
+<th>Inicio</th>
+<th>Fin</th>
+<th>Estado</th>
+<th class="text-end">Acciones</th>
+</tr>
+
+</thead>
+
+<tbody id="tablaContratos">
+
+{% for c in contratos %}
+
+<tr class="contratoRow"
+data-search="
+{{c.inquilino.nombre|lower}}
+{{c.inquilino.dni}}
+{{c.propiedad.tipo|lower}}
+{{c.propiedad.numero|lower}}
+">
+
+<td class="fw-bold">#{{c.id}}</td>
+
+<td>
+<div class="fw-bold">{{c.inquilino.nombre}}</div>
+<div class="text-muted small">DNI {{c.inquilino.dni}}</div>
+</td>
+
+<td>
+{{c.propiedad.tipo}} {{c.propiedad.numero}}
+</td>
+
+<td>
+
+{% if c.tipo_alquiler == "mensual" %}
+
+<span class="badge-soft success">
+<i class="bi bi-calendar-event"></i>
+Mensual
+</span>
+
+{% else %}
+
+<span class="badge-soft warning">
+<i class="bi bi-clock-history"></i>
+Diario
+</span>
+
+{% endif %}
+
+</td>
+
+<td class="fw-bold">
+S/ {{ "%.2f"|format(c.monto_mensual or 0) }}
+</td>
+
+<td>{{c.fecha_inicio}}</td>
+<td>{{c.fecha_fin}}</td>
+
+<td>
+
+{% if c.estado == "Activo" %}
+
+<span class="badge-soft success">
+<i class="bi bi-check-circle"></i>
+Activo
+</span>
+
+{% else %}
+
+<span class="badge-soft danger">
+<i class="bi bi-x-circle"></i>
+Finalizado
+</span>
+
+{% endif %}
+
+</td>
+
+<td class="text-end">
+
+<a
+class="btn btn-soft btn-sm"
+href="/contratos/{{c.id}}/editar">
+
+<i class="bi bi-pencil-square"></i>
+Editar
+</a>
+
+<form
+action="/contratos/{{c.id}}/eliminar"
+method="post"
+class="d-inline"
+onsubmit="return confirm('Eliminar contrato?');">
+
+<button class="btn btn-danger-soft btn-sm" type="submit">
+<i class="bi bi-trash3"></i>
+Eliminar
+</button>
+
+</form>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+{% if contratos|length == 0 %}
+
+<tr>
+<td colspan="9" class="text-center text-muted py-4">
+No hay contratos registrados
+</td>
+</tr>
+
+{% endif %}
+
+</tbody>
+
 </table>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts_extra %}
+
+<script>
+
+const buscador = document.getElementById("buscarContrato")
+
+buscador.addEventListener("keyup", function(){
+
+let texto = this.value.toLowerCase()
+
+let filas = document.querySelectorAll(".contratoRow")
+
+filas.forEach(f => {
+
+let data = f.dataset.search
+
+if(data.includes(texto))
+f.style.display = ""
+else
+f.style.display = "none"
+
+})
+
+})
+
+</script>
 
 {% endblock %}

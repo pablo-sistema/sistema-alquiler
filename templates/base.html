@@ -1,40 +1,474 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Sistema de Gestión</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}CREDIMAS | Sistema Alquiler{% endblock %}</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <style>
+    :root{
+      --credimas-red:#D71920;
+      --credimas-red-dark:#B71218;
+      --credimas-yellow:#F6C000;
+      --credimas-white:#FFFFFF;
+
+      --bg:#F6F7FB;
+      --card:#FFFFFF;
+      --text:#111827;
+      --muted:#6B7280;
+      --line:#E5E7EB;
+
+      --shadow: 0 8px 24px rgba(17,24,39,.08);
+      --radius: 16px;
+    }
+
+    body{
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* Layout */
+    .app{
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      background: linear-gradient(180deg, #0F172A 0%, #111827 100%);
+      color: #E5E7EB;
+      padding: 18px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      border-right: 1px solid rgba(255,255,255,.06);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding: 10px 10px 14px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      margin-bottom: 14px;
+    }
+
+    .brand-badge{
+      width:42px;height:42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--credimas-red), var(--credimas-yellow));
+      box-shadow: 0 10px 18px rgba(215,25,32,.25);
+      display:flex;align-items:center;justify-content:center;
+      color:white;
+      font-weight:800;
+      letter-spacing:.5px;
+    }
+
+    .brand-title{
+      line-height: 1.1;
+    }
+    .brand-title .name{
+      font-weight:800;
+      letter-spacing:.3px;
+      font-size: 14px;
+      margin:0;
+    }
+    .brand-title .sub{
+      font-size: 12px;
+      color: rgba(229,231,235,.75);
+      margin:0;
+    }
+
+    .nav-section{
+      margin-top: 10px;
+      color: rgba(229,231,235,.65);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      padding: 10px 10px 6px 10px;
+    }
+
+    .side-link{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      color: rgba(229,231,235,.92);
+      text-decoration:none;
+      transition: .15s ease;
+      margin: 4px 0;
+    }
+    .side-link:hover{
+      background: rgba(255,255,255,.06);
+      color: #fff;
+    }
+    .side-link .bi{
+      font-size: 18px;
+      opacity: .95;
+    }
+    .side-link.active{
+      background: rgba(215,25,32,.18);
+      outline: 1px solid rgba(215,25,32,.28);
+      color: #fff;
+    }
+
+    .side-footer{
+      position:absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      color: rgba(229,231,235,.75);
+      font-size: 12px;
+    }
+
+    /* Main */
+    .main{
+      display:flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    /* Topbar */
+    .topbar{
+      background: linear-gradient(90deg, var(--credimas-red) 0%, var(--credimas-red-dark) 60%, #8B0D12 100%);
+      color: #fff;
+      padding: 14px 18px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 12px 24px rgba(215,25,32,.14);
+    }
+
+    .topbar-inner{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .topbar-left{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+
+    .hamb{
+      display:none;
+      border: 0;
+      background: rgba(255,255,255,.14);
+      color: #fff;
+      border-radius: 10px;
+      width: 42px;
+      height: 42px;
+    }
+
+    .topbar-title{
+      margin:0;
+      font-weight: 800;
+      letter-spacing: .2px;
+      font-size: 15px;
+    }
+    .topbar-sub{
+      margin:0;
+      font-size: 12px;
+      opacity: .9;
+    }
+
+    .topbar-actions{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+
+    .pill{
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.20);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .btn-credimas{
+      background: var(--credimas-yellow);
+      color: #111827;
+      border: 0;
+      font-weight: 800;
+      border-radius: 12px;
+      padding: 10px 14px;
+    }
+    .btn-credimas:hover{
+      filter: brightness(.95);
+    }
+
+    /* Content container */
+    .content{
+      padding: 18px;
+    }
+
+    /* Global UI helpers for all pages */
+    .page-header{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .page-title{
+      margin:0;
+      font-weight: 900;
+      letter-spacing: .2px;
+      font-size: 20px;
+    }
+    .page-subtitle{
+      margin: 4px 0 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .card-pro{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .card-pro .card-header{
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      border-top-left-radius: var(--radius);
+      border-top-right-radius: var(--radius);
+      padding: 14px 16px;
+      font-weight: 800;
+    }
+    .card-pro .card-body{
+      padding: 16px;
+    }
+
+    .table-pro{
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .table-pro table{ margin:0; }
+    .table-pro thead th{
+      background: #F9FAFB;
+      color: #111827;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--line);
+      padding: 12px 12px;
+    }
+    .table-pro tbody td{
+      border-top: 1px solid var(--line);
+      padding: 12px 12px;
+      vertical-align: middle;
+    }
+
+    .badge-soft{
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 800;
+      font-size: 12px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .badge-soft.success{ background: rgba(16,185,129,.12); color: #065F46; }
+    .badge-soft.warning{ background: rgba(245,158,11,.14); color: #92400E; }
+    .badge-soft.info{    background: rgba(59,130,246,.12); color: #1E3A8A; }
+    .badge-soft.danger{  background: rgba(239,68,68,.12);  color: #7F1D1D; }
+    .badge-soft.gray{    background: rgba(107,114,128,.12); color: #374151; }
+
+    .btn-soft{
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-weight: 800;
+      padding: 10px 12px;
+    }
+    .btn-soft:hover{ background: #F9FAFB; }
+
+    .btn-danger-soft{
+      border-radius: 12px;
+      border: 1px solid rgba(239,68,68,.28);
+      background: rgba(239,68,68,.08);
+      color: #991B1B;
+      font-weight: 900;
+      padding: 10px 12px;
+    }
+    .btn-danger-soft:hover{ background: rgba(239,68,68,.12); }
+
+    .form-control, .form-select{
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+    }
+    .form-control:focus, .form-select:focus{
+      border-color: rgba(215,25,32,.35);
+      box-shadow: 0 0 0 .25rem rgba(215,25,32,.12);
+    }
+
+    /* Mobile */
+    @media (max-width: 992px){
+      .app{ grid-template-columns: 1fr; }
+      .sidebar{
+        position: fixed;
+        left: -320px;
+        width: 280px;
+        z-index: 50;
+        transition: .2s ease;
+      }
+      .sidebar.open{ left: 0; }
+      .hamb{ display:inline-flex; align-items:center; justify-content:center; }
+      .content{ padding: 14px; }
+    }
+
+    .overlay{ display:none; }
+    .overlay.show{
+      display:block;
+      position: fixed;
+      inset: 0;
+      background: rgba(17,24,39,.55);
+      z-index: 40;
+    }
+  </style>
+
+  {% block head_extra %}{% endblock %}
 </head>
 
-<body class="bg-light">
+<body>
+  <div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-badge">C</div>
+        <div class="brand-title">
+          <p class="name mb-0">CREDIMAS</p>
+          <p class="sub mb-0">Sistema de Alquiler</p>
+        </div>
+      </div>
 
-    <a class="navbar-brand" href="/">Sistema Alquiler</a>
+      <div class="nav-section">Módulos</div>
 
-    <div class="navbar-nav">
+      {% set p = request.url.path %}
+      <a class="side-link {% if p.startswith('/dashboard') or p == '/' %}active{% endif %}" href="/dashboard">
+        <i class="bi-activity"></i> Dashboard
+      </a>
+      <a class="side-link {% if p.startswith('/propiedades') or p == '/' %}active{% endif %}" href="/propiedades">
+        <i class="bi bi-house-door"></i> Propiedades
+      </a>
 
-      <a class="nav-link" href="/propiedades">🏠 Propiedades</a>
+      <a class="side-link {% if p.startswith('/inquilinos') %}active{% endif %}" href="/inquilinos">
+        <i class="bi bi-people"></i> Inquilinos
+      </a>
 
-      <a class="nav-link" href="/inquilinos">👤 Inquilinos</a>
+      <a class="side-link {% if p.startswith('/contratos') %}active{% endif %}" href="/contratos">
+        <i class="bi bi-file-earmark-text"></i> Contratos
+      </a>
 
-      <a class="nav-link" href="/contratos">📄 Contratos</a>
+      <a class="side-link {% if p.startswith('/cargos') %}active{% endif %}" href="/cargos">
+        <i class="bi bi-receipt"></i> Cargos
+      </a>
 
-      <a class="nav-link" href="/cargos">🧾 Cargos</a>
+      <a class="side-link {% if p.startswith('/pagos') %}active{% endif %}" href="/pagos">
+        <i class="bi bi-cash-coin"></i> Pagos
+      </a>
 
-      <a class="nav-link" href="/pagos">💰 Pagos</a>
+      <a class="side-link {% if p.startswith('/lecturas') %}active{% endif %}" href="/lecturas">
+        <i class="bi bi-lightning-charge"></i> Lecturas
+      </a>
 
-      <a class="nav-link" href="/lecturas">⚡ Lecturas</a>
+      <div class="side-footer">
+        <div class="d-flex align-items-center justify-content-between">
+          <span><i class="bi bi-shield-check me-1"></i> Acceso seguro</span>
+          <a href="/logout" class="text-decoration-none" style="color: rgba(229,231,235,.9); font-weight:800;">
+            Salir <i class="bi bi-box-arrow-right"></i>
+          </a>
+        </div>
+        <div class="mt-2" style="opacity:.75;">
+          © <span id="yearNow"></span> CREDIMAS
+        </div>
+      </div>
+    </aside>
 
+    <!-- MAIN -->
+    <main class="main">
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div class="topbar-left">
+            <button class="hamb" type="button" onclick="toggleSidebar(true)">
+              <i class="bi bi-list" style="font-size:20px;"></i>
+            </button>
+            <div>
+              <p class="topbar-title">CREDIMAS · Gestión de Alquileres</p>
+              <p class="topbar-sub mb-0">Operaciones · Cobranza · Lecturas · Recibos</p>
+            </div>
+          </div>
 
-    </div>
+          <div class="topbar-actions">
+            <div class="pill">
+              <i class="bi bi-calendar-event"></i>
+              <span id="today"></span>
+            </div>
+            <a class="btn btn-credimas" href="/pagos">
+              <i class="bi bi-plus-circle me-1"></i> Registrar Pago
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <!-- CONTENT -->
+      <section class="content">
+        {% block content %}{% endblock %}
+      </section>
+    </main>
   </div>
-</nav>
 
-<div class="container mt-4">
-    {% block content %}
-    {% endblock %}
-</div>
+  <script>
+    function toggleSidebar(open){
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
+      if(open){
+        sidebar.classList.add("open");
+        overlay.classList.add("show");
+      }else{
+        sidebar.classList.remove("open");
+        overlay.classList.remove("show");
+      }
+    }
 
+    // Fecha + Año (evita depender de "date" en Jinja)
+    (function(){
+      const d = new Date();
+      const opts = { year:'numeric', month:'short', day:'2-digit' };
+      const el = document.getElementById("today");
+      if(el) el.textContent = d.toLocaleDateString('es-PE', opts);
+
+      const y = document.getElementById("yearNow");
+      if(y) y.textContent = String(d.getFullYear());
+    })();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  {% block scripts_extra %}{% endblock %}
 </body>
 </html>

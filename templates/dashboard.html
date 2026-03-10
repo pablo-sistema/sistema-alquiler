@@ -1,121 +1,250 @@
 {% extends "base.html" %}
+{% block title %}Dashboard | CREDIMAS{% endblock %}
+
 {% block content %}
-
-<h2 class="mb-3">📊 Dashboard</h2>
-<p class="text-muted">Resumen financiero y accesos rápidos a módulos.</p>
-
-<!-- KPIs -->
-<div class="row g-3 mb-4">
-
-  <div class="col-md-3">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <div class="text-muted">Propiedades</div>
-        <div class="fs-3 fw-bold">{{ total_propiedades }}</div>
-        <div class="small text-muted">Libres: {{ libres }} | Ocupadas: {{ ocupadas }}</div>
-      </div>
-    </div>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">
+      Control gerencial del sistema · Periodo actual: <b>{{ periodo_actual }}</b>
+    </p>
   </div>
 
-  <div class="col-md-3">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <div class="text-muted">Inquilinos</div>
-        <div class="fs-3 fw-bold">{{ total_inquilinos }}</div>
-        <div class="small text-muted">Contratos activos: {{ contratos_activos }}</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-3">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <div class="text-muted">Deuda pendiente</div>
-        <div class="fs-3 fw-bold">S/ {{ deuda_total }}</div>
-        <div class="small text-muted">Cargos pendientes: {{ cargos_pendientes }}</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-3">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <div class="text-muted">Morosos</div>
-        <div class="fs-3 fw-bold">{{ morosos }}</div>
-        <div class="small text-muted">Cargos vencidos sin pagar</div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- Ingresos del mes -->
-<div class="card shadow-sm mb-4">
-  <div class="card-body d-flex justify-content-between align-items-center">
-    <div>
-      <div class="text-muted">Ingresos del mes</div>
-      <div class="fs-2 fw-bold">S/ {{ ingresos_mes }}</div>
-    </div>
-    <a href="/pagos" class="btn btn-success">Ver Pagos</a>
+  <div class="d-flex gap-2">
+    <a href="/pagos" class="btn btn-credimas">
+      <i class="bi bi-cash-coin me-1"></i> Registrar Pago
+    </a>
+    <a href="/cargos" class="btn btn-soft">
+      <i class="bi bi-receipt me-1"></i> Ver Cargos
+    </a>
   </div>
 </div>
 
-<!-- Módulos (cuadros gigantes) -->
-<div class="row g-4">
-
-  <div class="col-md-4">
-    <div class="card shadow-sm h-100">
+<!-- KPIs principales -->
+<div class="row g-3 mb-3">
+  <div class="col-lg-3 col-md-6">
+    <div class="card-pro">
       <div class="card-body">
-        <h4>🏠 Propiedades</h4>
-        <p class="text-muted">Registrar y administrar cuartos, locales, departamentos.</p>
-        <a href="/propiedades" class="btn btn-primary w-100">Ir a Propiedades</a>
+        <div class="d-flex align-items-start justify-content-between">
+          <div>
+            <div class="text-muted" style="font-size:12px; text-transform:uppercase;">Propiedades</div>
+            <div style="font-size:28px; font-weight:900;">{{ total_propiedades }}</div>
+            <div class="text-muted" style="font-size:13px;">Ocupadas: <b>{{ ocupadas }}</b> · Libres: <b>{{ libres }}</b></div>
+          </div>
+          <div class="badge-soft gray"><i class="bi bi-house-door"></i></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="col-md-4">
-    <div class="card shadow-sm h-100">
+  <div class="col-lg-3 col-md-6">
+    <div class="card-pro">
       <div class="card-body">
-        <h4>👤 Inquilinos</h4>
-        <p class="text-muted">Registrar inquilinos, teléfonos y estado.</p>
-        <a href="/inquilinos" class="btn btn-primary w-100">Ir a Inquilinos</a>
+        <div class="d-flex align-items-start justify-content-between">
+          <div>
+            <div class="text-muted" style="font-size:12px; text-transform:uppercase;">Inquilinos</div>
+            <div style="font-size:28px; font-weight:900;">{{ total_inquilinos }}</div>
+            <div class="text-muted" style="font-size:13px;">Contratos activos: <b>{{ contratos_activos }}</b></div>
+          </div>
+          <div class="badge-soft gray"><i class="bi bi-people"></i></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="col-md-4">
-    <div class="card shadow-sm h-100">
+  <div class="col-lg-3 col-md-6">
+    <div class="card-pro">
       <div class="card-body">
-        <h4>📄 Contratos</h4>
-        <p class="text-muted">Crear contratos y asignar propiedad + inquilino.</p>
-        <a href="/contratos" class="btn btn-primary w-100">Ir a Contratos</a>
+        <div class="d-flex align-items-start justify-content-between">
+          <div>
+            <div class="text-muted" style="font-size:12px; text-transform:uppercase;">Pendiente del Mes</div>
+            <div style="font-size:28px; font-weight:900;">S/ {{ "%.2f"|format(pendiente_mes or 0) }}</div>
+            <div class="text-muted" style="font-size:13px;">Periodo: <b>{{ periodo_actual }}</b></div>
+          </div>
+          <div class="badge-soft warning"><i class="bi bi-exclamation-triangle"></i></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="col-md-4">
-    <div class="card shadow-sm h-100">
+  <div class="col-lg-3 col-md-6">
+    <div class="card-pro">
       <div class="card-body">
-        <h4>🧾 Cargos</h4>
-        <p class="text-muted">Recibos generados: prorrata, alquiler, servicios.</p>
-        <a href="/cargos" class="btn btn-primary w-100">Ir a Cargos</a>
+        <div class="d-flex align-items-start justify-content-between">
+          <div>
+            <div class="text-muted" style="font-size:12px; text-transform:uppercase;">Cobrado del Mes</div>
+            <div style="font-size:28px; font-weight:900;">S/ {{ "%.2f"|format(cobrado_mes or 0) }}</div>
+            <div class="text-muted" style="font-size:13px;">Morosos: <b>{{ morosos }}</b></div>
+          </div>
+          <div class="badge-soft success"><i class="bi bi-cash-stack"></i></div>
+        </div>
       </div>
     </div>
   </div>
-
-  <div class="col-md-4">
-    <div class="card shadow-sm h-100">
-      <div class="card-body">
-        <h4>💰 Pagos</h4>
-        <p class="text-muted">Registrar pagos (Yape/Plin/Efectivo) y ver historial.</p>
-        <a href="/pagos" class="btn btn-primary w-100">Ir a Pagos</a>
-      </div>
-    </div>
-  </div>
-
 </div>
-<form action="/generar_cargos_mensuales" method="post" class="mb-3">
-  <button class="btn btn-outline-primary">⚙️ Generar cargos mensuales</button>
-</form>
 
+<!-- Segunda fila -->
+<div class="row g-3 mb-3">
+  <div class="col-lg-7">
+    <div class="card-pro">
+      <div class="card-header">
+        <i class="bi bi-clock-history me-2"></i> Cargos Morosos
+      </div>
+      <div class="card-body">
+        <div class="table-pro">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Venc.</th>
+                <th>Inquilino</th>
+                <th>Propiedad</th>
+                <th>Concepto</th>
+                <th>Periodo</th>
+                <th class="text-end">Saldo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in cargos_morosos %}
+                {% set saldo = (c.monto or 0) - (c.pagado_acumulado or 0) %}
+                <tr>
+                  <td class="fw-bold">{{ c.vencimiento }}</td>
+                  <td>
+                    <div class="fw-bold">{{ c.contrato.inquilino.nombre }}</div>
+                    <div class="text-muted" style="font-size:12px;">DNI: {{ c.contrato.inquilino.dni }}</div>
+                  </td>
+                  <td>{{ c.contrato.propiedad.tipo }} - {{ c.contrato.propiedad.numero }}</td>
+                  <td>{{ c.concepto }}</td>
+                  <td>{{ c.periodo }}</td>
+                  <td class="text-end fw-bold">S/ {{ "%.2f"|format(saldo if saldo > 0 else 0) }}</td>
+                </tr>
+              {% endfor %}
+
+              {% if cargos_morosos|length == 0 %}
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                  No hay cargos morosos.
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card-pro">
+      <div class="card-header">
+        <i class="bi bi-trophy me-2"></i> Top Deudores
+      </div>
+      <div class="card-body">
+        {% for t in top_deudores %}
+        <div class="d-flex align-items-center justify-content-between py-2" style="border-bottom:1px solid #E5E7EB;">
+          <div>
+            <div class="fw-bold">{{ t.nombre }}</div>
+            <div class="text-muted" style="font-size:12px;">WhatsApp: {{ t.whatsapp or '-' }}</div>
+          </div>
+          <div class="text-end">
+            <div class="fw-bold">S/ {{ "%.2f"|format(t.deuda or 0) }}</div>
+            <div class="text-muted" style="font-size:12px;">pendiente</div>
+          </div>
+        </div>
+        {% endfor %}
+
+        {% if top_deudores|length == 0 %}
+        <div class="text-center text-muted py-4">No hay deudores pendientes.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tercera fila -->
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card-pro">
+      <div class="card-header">
+        <i class="bi bi-calendar-event me-2"></i> Próximos Vencimientos
+      </div>
+      <div class="card-body">
+        <div class="table-pro">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Venc.</th>
+                <th>Inquilino</th>
+                <th>Concepto</th>
+                <th>Periodo</th>
+                <th class="text-end">Saldo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in proximos_vencimientos %}
+                {% set saldo = (c.monto or 0) - (c.pagado_acumulado or 0) %}
+                <tr>
+                  <td>{{ c.vencimiento }}</td>
+                  <td class="fw-bold">{{ c.contrato.inquilino.nombre }}</td>
+                  <td>{{ c.concepto }}</td>
+                  <td>{{ c.periodo }}</td>
+                  <td class="text-end fw-bold">S/ {{ "%.2f"|format(saldo if saldo > 0 else 0) }}</td>
+                </tr>
+              {% endfor %}
+
+              {% if proximos_vencimientos|length == 0 %}
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">
+                  No hay próximos vencimientos.
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card-pro">
+      <div class="card-header">
+        <i class="bi bi-journal-check me-2"></i> Pagos Recientes
+      </div>
+      <div class="card-body">
+        <div class="table-pro">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Inquilino</th>
+                <th>Concepto</th>
+                <th>Método</th>
+                <th class="text-end">Monto</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in pagos_recientes %}
+              <tr>
+                <td>{{ p.fecha_pago }}</td>
+                <td class="fw-bold">{{ p.contrato.inquilino.nombre }}</td>
+                <td>{{ p.cargo.concepto if p.cargo else '-' }}</td>
+                <td>{{ p.metodo }}</td>
+                <td class="text-end fw-bold">S/ {{ "%.2f"|format(p.monto or 0) }}</td>
+              </tr>
+              {% endfor %}
+
+              {% if pagos_recientes|length == 0 %}
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">
+                  No hay pagos recientes.
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

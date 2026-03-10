@@ -1,58 +1,235 @@
 {% extends "base.html" %}
+{% block title %}Cargos | CREDIMAS{% endblock %}
+
 {% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Cargos</h1>
+    <p class="page-subtitle">
+      Control de alquiler mensual, alquiler diario, luz y otros cargos del sistema
+    </p>
+  </div>
 
-<h2 class="mb-3">🧾 Cargos (Recibos)</h2>
-<p class="text-muted">
-  Aquí verás los cargos generados (alquiler prorrata, alquiler mensual, servicios, etc.) con vencimiento normalmente el día 25.
-</p>
-
-<div class="card mb-3">
-  <div class="card-body">
-    <table class="table table-striped table-hover align-middle">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Inquilino</th>
-          <th>Propiedad</th>
-          <th>Concepto</th>
-          <th>Periodo</th>
-          <th>Monto</th>
-          <th>Vencimiento</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for c in cargos %}
-        <tr>
-          <td>{{ c.id }}</td>
-          <td>{{ c.contrato.inquilino.nombre }}</td>
-          <td>{{ c.contrato.propiedad.tipo }} - {{ c.contrato.propiedad.numero }}</td>
-          <td>{{ c.concepto }}</td>
-          <td>{{ c.periodo }}</td>
-          <td><strong>S/ {{ c.monto }}</strong></td>
-          <td>{{ c.vencimiento }}</td>
-          <td>
-            {% if c.estado == "Pendiente" %}
-              <span class="badge bg-warning text-dark">Pendiente</span>
-            {% elif c.estado == "Pagado" %}
-              <span class="badge bg-success">Pagado</span>
-            {% else %}
-              <span class="badge bg-info text-dark">Parcial</span>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-
-        {% if cargos|length == 0 %}
-        <tr>
-          <td colspan="8" class="text-center text-muted">
-            No hay cargos todavía. Crea un contrato para generar el cargo prorrateado automáticamente.
-          </td>
-        </tr>
-        {% endif %}
-      </tbody>
-    </table>
+  <div class="d-flex gap-2">
+    <form action="/generar_cargos_mensuales" method="post" class="d-inline">
+      <button class="btn btn-credimas" type="submit">
+        <i class="bi bi-calendar2-plus me-1"></i> Generar Cargos Mensuales
+      </button>
+    </form>
   </div>
 </div>
 
+<div class="row g-3">
+  <!-- FORMULARIO -->
+  <div class="col-lg-4">
+    <div class="card-pro">
+      <div class="card-header">
+        <i class="bi bi-receipt-cutoff me-2"></i>Nuevo Cargo
+      </div>
+      <div class="card-body">
+        <form class="row g-3" action="/cargos/crear" method="post">
+          <div class="col-12">
+            <label class="form-label">Contrato</label>
+            <select class="form-select" name="contrato_id" required>
+              {% for c in contratos %}
+              <option value="{{c.id}}">
+                #{{c.id}} | {{c.inquilino.nombre}} ({{c.inquilino.dni}})
+                | {{c.propiedad.tipo}} {{c.propiedad.numero}}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Concepto</label>
+            <select class="form-select" name="concepto" required>
+              <option value="ALQUILER_MENSUAL">ALQUILER_MENSUAL</option>
+              <option value="ALQUILER_PRORRATA">ALQUILER_PRORRATA</option>
+              <option value="ALQUILER_DIARIO">ALQUILER_DIARIO</option>
+              <option value="LUZ">LUZ</option>
+              <option value="AGUA">AGUA</option>
+              <option value="MANTENIMIENTO">MANTENIMIENTO</option>
+              <option value="OTRO">OTRO</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Periodo</label>
+            <input class="form-control" name="periodo" placeholder="Ej: 2026-03" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Monto (S/)</label>
+            <input class="form-control" type="number" step="0.01" min="0" name="monto" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Vencimiento</label>
+            <input class="form-control" type="date" name="vencimiento" required>
+          </div>
+
+          <div class="col-12 d-flex justify-content-end">
+            <button class="btn btn-credimas" type="submit">
+              <i class="bi bi-check2-circle me-1"></i> Guardar Cargo
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card-pro mt-3">
+      <div class="card-header">
+        <i class="bi bi-search me-2"></i>Buscador / Filtro
+      </div>
+      <div class="card-body">
+        <label class="form-label">Buscar</label>
+        <input id="qCargo" class="form-control" placeholder="Nombre, DNI, propiedad, concepto, periodo">
+        <div class="form-text">
+          Filtra cargos por inquilino, propiedad, concepto o periodo.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLA -->
+  <div class="col-lg-8">
+    <div class="card-pro">
+      <div class="card-header">
+        <i class="bi bi-journal-text me-2"></i>Listado de Cargos
+      </div>
+      <div class="card-body">
+        <div class="table-pro">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Inquilino</th>
+                <th>Propiedad</th>
+                <th>Concepto</th>
+                <th>Periodo</th>
+                <th>Vence</th>
+                <th>Monto</th>
+                <th>Pagado</th>
+                <th>Saldo</th>
+                <th>Estado</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="cargoBody">
+              {% for cg in cargos %}
+              {% set monto = (cg.monto or 0) %}
+              {% set pagado = (cg.pagado_acumulado or 0) %}
+              {% set saldo = (monto - pagado) %}
+              <tr
+                class="cargo-row"
+                data-search="
+                  {{ (cg.contrato.inquilino.nombre or '')|lower }}
+                  {{ cg.contrato.inquilino.dni or '' }}
+                  {{ (cg.contrato.propiedad.tipo ~ ' ' ~ cg.contrato.propiedad.numero)|lower }}
+                  {{ (cg.concepto or '')|lower }}
+                  {{ (cg.periodo or '')|lower }}
+                "
+              >
+                <td class="fw-bold">#{{ cg.id }}</td>
+
+                <td>
+                  <div class="fw-bold">{{ cg.contrato.inquilino.nombre }}</div>
+                  <div class="text-muted" style="font-size:12px;">DNI: {{ cg.contrato.inquilino.dni }}</div>
+                </td>
+
+                <td>{{ cg.contrato.propiedad.tipo }} - {{ cg.contrato.propiedad.numero }}</td>
+
+                <td>
+                  {% if cg.concepto == "ALQUILER_MENSUAL" %}
+                    <span class="badge-soft success"><i class="bi bi-house-check"></i> {{ cg.concepto }}</span>
+                  {% elif cg.concepto == "ALQUILER_DIARIO" or "DIARIO" in cg.concepto %}
+                    <span class="badge-soft warning"><i class="bi bi-clock-history"></i> {{ cg.concepto }}</span>
+                  {% elif cg.concepto == "LUZ" %}
+                    <span class="badge-soft gray"><i class="bi bi-lightning-charge"></i> {{ cg.concepto }}</span>
+                  {% else %}
+                    <span class="badge-soft gray"><i class="bi bi-receipt"></i> {{ cg.concepto }}</span>
+                  {% endif %}
+                </td>
+
+                <td>{{ cg.periodo }}</td>
+                <td>{{ cg.vencimiento }}</td>
+
+                <td class="fw-bold">S/ {{ "%.2f"|format(monto) }}</td>
+                <td>S/ {{ "%.2f"|format(pagado) }}</td>
+                <td class="fw-bold">S/ {{ "%.2f"|format(saldo if saldo > 0 else 0) }}</td>
+
+                <td>
+                  {% if cg.estado == "Pagado" %}
+                    <span class="badge-soft success"><i class="bi bi-check-circle"></i> Pagado</span>
+                  {% elif cg.estado == "Parcial" %}
+                    <span class="badge-soft warning"><i class="bi bi-exclamation-circle"></i> Parcial</span>
+                  {% else %}
+                    <span class="badge-soft danger"><i class="bi bi-clock"></i> Pendiente</span>
+                  {% endif %}
+                </td>
+
+                <td class="text-end">
+                  <a class="btn btn-soft btn-sm" href="/cargos/{{cg.id}}/editar">
+                    <i class="bi bi-pencil-square me-1"></i> Editar
+                  </a>
+
+                  <form action="/cargos/{{cg.id}}/eliminar" method="post" class="d-inline"
+                        onsubmit="return confirm('¿Eliminar cargo #{{cg.id}}?');">
+                    <button class="btn btn-danger-soft btn-sm" type="submit">
+                      <i class="bi bi-trash3 me-1"></i> Eliminar
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+
+              {% if cargos|length == 0 %}
+              <tr>
+                <td colspan="11" class="text-center text-muted py-4">
+                  No hay cargos registrados.
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-2 text-muted small" id="cargoCounter"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+(function(){
+  const q = document.getElementById("qCargo");
+  const rows = Array.from(document.querySelectorAll(".cargo-row"));
+  const counter = document.getElementById("cargoCounter");
+
+  function refreshCounter(visible){
+    if(counter){
+      counter.textContent = `Mostrando ${visible} de ${rows.length} cargos.`;
+    }
+  }
+
+  function filter(){
+    const needle = (q.value || "").toLowerCase().trim();
+    let visible = 0;
+
+    rows.forEach(r => {
+      const txt = (r.dataset.search || "").toLowerCase();
+      const ok = !needle || txt.includes(needle);
+      r.style.display = ok ? "" : "none";
+      if(ok) visible++;
+    });
+
+    refreshCounter(visible);
+  }
+
+  if(q) q.addEventListener("input", filter);
+  refreshCounter(rows.length);
+})();
+</script>
 {% endblock %}

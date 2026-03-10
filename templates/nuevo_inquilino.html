@@ -1,17 +1,40 @@
-<h2>Nuevo Inquilino</h2>
+{% extends "base.html" %}
+{% block content %}
 
-<form action="/guardar_inquilino" method="post">
-    DNI: <input type="text" name="dni"><br><br>
-    Nombre: <input type="text" name="nombre"><br><br>
-    Teléfono: <input type="text" name="telefono"><br><br>
-    WhatsApp: <input type="text" name="whatsapp"><br><br>
+<h2 class="mb-3">➕ Nuevo Inquilino</h2>
 
-    Estado:
-    <select name="estado">
-        <option value="Activo">Activo</option>
-        <option value="Moroso">Moroso</option>
-    </select>
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form action="/inquilinos/crear" method="post" class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label">DNI</label>
+        <input name="dni" class="form-control" required>
+      </div>
+      <div class="col-md-5">
+        <label class="form-label">Nombre</label>
+        <input name="nombre" class="form-control" required>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Teléfono</label>
+        <input name="telefono" class="form-control">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">WhatsApp</label>
+        <input name="whatsapp" class="form-control">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Estado</label>
+        <select name="estado" class="form-control">
+          <option>Activo</option>
+          <option>Inactivo</option>
+        </select>
+      </div>
+      <div class="col-12">
+        <button class="btn btn-success">Guardar</button>
+        <a class="btn btn-outline-secondary" href="/inquilinos">Volver</a>
+      </div>
+    </form>
+  </div>
+</div>
 
-    <br><br>
-    <button type="submit">Guardar</button>
-</form>
+{% endblock %}

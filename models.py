@@ -1,87 +1,94 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Date
+from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
 from sqlalchemy.orm import relationship
 from database import Base
 
-
 class Propiedad(Base):
     __tablename__ = "propiedades"
-
     id = Column(Integer, primary_key=True, index=True)
     tipo = Column(String, nullable=False)
     numero = Column(String, nullable=False)
-    precio = Column(Float, nullable=False)
-    estado = Column(String, default="libre")
+    precio = Column(Float, default=0.0)
+    estado = Column(String, default="libre")  # libre/ocupado
+
+    contratos = relationship("Contrato", back_populates="propiedad")
 
 
 class Inquilino(Base):
     __tablename__ = "inquilinos"
-
     id = Column(Integer, primary_key=True, index=True)
-    dni = Column(String, index=True, nullable=False)
+    dni = Column(String, unique=True, index=True, nullable=False)
     nombre = Column(String, nullable=False)
-    telefono = Column(String, nullable=False)
-    whatsapp = Column(String, nullable=False)
+    telefono = Column(String, default="")
+    whatsapp = Column(String, default="")
     estado = Column(String, default="Activo")
+
+    contratos = relationship("Contrato", back_populates="inquilino")
 
 
 class Contrato(Base):
     __tablename__ = "contratos"
-
     id = Column(Integer, primary_key=True, index=True)
-    propiedad_id = Column(Integer, ForeignKey("propiedades.id"), nullable=False)
-    inquilino_id = Column(Integer, ForeignKey("inquilinos.id"), nullable=False)
-
+    propiedad_id = Column(Integer, ForeignKey("propiedades.id"))
+    inquilino_id = Column(Integer, ForeignKey("inquilinos.id"))
     fecha_inicio = Column(Date, nullable=False)
     fecha_fin = Column(Date, nullable=False)
-    monto_mensual = Column(Float, nullable=False)
-    estado = Column(String, default="Activo")
+    monto_mensual = Column(Float, default=0.0)
+    estado = Column(String, default="Activo")  # Activo/Inactivo
 
-    propiedad = relationship("Propiedad")
-    inquilino = relationship("Inquilino")
+    # NUEVO: mensual / diario
+    tipo_alquiler = Column(String, default="mensual")
 
+    propiedad = relationship("Propiedad", back_populates="contratos")
+    inquilino = relationship("Inquilino", back_populates="contratos")
 
-class Pago(Base):
-    __tablename__ = "pagos"
-
-    id = Column(Integer, primary_key=True, index=True)
-    contrato_id = Column(Integer, ForeignKey("contratos.id"), nullable=False)
-
-    monto = Column(Float, nullable=False)
-    fecha_pago = Column(Date, nullable=False)
-    metodo = Column(String, nullable=False)
-
-    contrato = relationship("Contrato")
+    cargos = relationship("Cargo", back_populates="contrato")
+    pagos = relationship("Pago", back_populates="contrato")
+    lecturas = relationship("Lectura", back_populates="contrato")
 
 
 class Cargo(Base):
     __tablename__ = "cargos"
-
     id = Column(Integer, primary_key=True, index=True)
-    contrato_id = Column(Integer, ForeignKey("contratos.id"), nullable=False)
+    contrato_id = Column(Integer, ForeignKey("contratos.id"))
+    concepto = Column(String, nullable=False)      # ALQUILER_MENSUAL / ALQUILER_DIARIO / Agua / Luz...
+    periodo = Column(String, nullable=False)       # 2026-02 o 2026-02-01_2026-02-10
+    monto = Column(Float, default=0.0)
+    vencimiento = Column(Date, nullable=False)
+    estado = Column(String, default="Pendiente")   # Pendiente/Parcial/Pagado
 
-    concepto = Column(String, nullable=False)   # ALQUILER_PRORRATA, ALQUILER, LUZ, AGUA, INTERNET, MORA
-    periodo = Column(String, nullable=False)    # "YYYY-MM"
-    monto = Column(Float, nullable=False)
+    # NUEVO: acumulado pagado para saldo automático
+    pagado_acumulado = Column(Float, default=0.0)
 
-    vencimiento = Column(Date, nullable=False)  # normalmente día 25
-    estado = Column(String, default="Pendiente")  # Pendiente / Pagado / Parcial
+    contrato = relationship("Contrato", back_populates="cargos")
+    pagos = relationship("Pago", back_populates="cargo")
 
-    contrato = relationship("Contrato")
+
+class Pago(Base):
+    __tablename__ = "pagos"
+    id = Column(Integer, primary_key=True, index=True)
+    contrato_id = Column(Integer, ForeignKey("contratos.id"))
+    cargo_id = Column(Integer, ForeignKey("cargos.id"), nullable=True)
+
+    monto = Column(Float, default=0.0)
+    fecha_pago = Column(Date, nullable=False)
+    metodo = Column(String, default="Efectivo")
+
+    contrato = relationship("Contrato", back_populates="pagos")
+    cargo = relationship("Cargo", back_populates="pagos")
+
 
 class Lectura(Base):
     __tablename__ = "lecturas"
-
     id = Column(Integer, primary_key=True, index=True)
-    contrato_id = Column(Integer, ForeignKey("contratos.id"), nullable=False)
+    contrato_id = Column(Integer, ForeignKey("contratos.id"))
 
-    servicio = Column(String, nullable=False)        # LUZ o AGUA
-    periodo = Column(String, nullable=False)         # "YYYY-MM"
-    lectura_anterior = Column(Float, nullable=False)
-    lectura_actual = Column(Float, nullable=False)
-    consumo = Column(Float, nullable=False)
-    tarifa = Column(Float, nullable=False)
-    monto = Column(Float, nullable=False)
-
+    servicio = Column(String, nullable=False)      # Agua/Luz
+    periodo = Column(String, nullable=False)       # 2026-02
+    lectura_anterior = Column(Float, default=0.0)
+    lectura_actual = Column(Float, default=0.0)
+    consumo = Column(Float, default=0.0)
+    tarifa = Column(Float, default=0.0)
+    monto = Column(Float, default=0.0)
     fecha_registro = Column(Date, nullable=False)
-    contrato = relationship("Contrato")
-    
+
+    contrato = relationship("Contrato", back_populates="lecturas")
